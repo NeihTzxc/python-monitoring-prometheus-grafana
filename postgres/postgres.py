@@ -22,17 +22,23 @@ class Postgres:
 
         # Set the PGPASSWORD environment variable to provide the password
         os.environ['PGPASSWORD'] = self.password
+        try:
+            subprocess.run(
+                [
+                    "pg_dump",
+                    "--column-inserts",
+                    "--no-owner",
+                    f"--host={self.host}",
+                    f"--port={self.port}",
+                    f"--dbname={self.database}",
+                    f"--username={self.user}",
+                    f"--file={backup_file_location}"
+                ]
+            )
+            return backup_file_location
+        except Exception as e:
+            print(f"An error occurred during the backup: {str(e)}")
+        finally:
+            os.environ.pop('PGPASSWORD', None)
 
-        subprocess.run(
-            [
-                "pg_dump",
-                "--column-inserts",
-                "--no-owner",
-                f"--host={self.host}",
-                f"--port={self.port}",
-                f"--dbname={self.database}",
-                f"--username={self.user}",
-                f"--file={backup_file_location}"
-            ]
-        )
-        return backup_file_location
+
