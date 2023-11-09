@@ -1,21 +1,27 @@
-import datetime
-import subprocess
-import os
+import sys
 
-# Define the database details
-DATABASE_NAME = 'mydatabase'
-DATABASE_HOST = 'localhost'
-DATABASE_PORT = 5432
-DATABASE_USER = 'postgres'
-DATABASE_PASSWORD = 'password'
+from postgres.postgres import Postgres
 
-# Define the backup file path
-BACKUP_PATH = "./backups"
 
-# Create the backup file name
-back_up_file_name = f"{DATABASE_NAME}-{datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.sql"
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python main.py backup postgres")
+        sys.exit()
 
-# Construct the backup command
-backup_command = f"pg_dump -h {DATABASE_HOST} -p {DATABASE_PORT} -U {DATABASE_USER} -d {DATABASE_NAME} > {BACKUP_PATH}{back_up_file_name}"
-subprocess.call(backup_command)
-print(f"Database backup completed successfully: {BACKUP_PATH}{back_up_file_name}")
+    action = sys.argv[1]
+
+    if action == "backup_postgres":
+        postgres = Postgres()
+        folder_backup_location = "/tmp"
+        file_name = "bida-api"
+        try:
+            postgres.backup(folder_backup_location, file_name)
+            print("PostgresSQL backup completed successfully.")
+        except Exception as e:
+            print(f"An error occurred during the backup: {str(e)}")
+    else:
+        print("Invalid action, Use 'backup_postgres'")
+
+
+if __name__ == "__main__":
+    main()
